@@ -40,14 +40,15 @@ MEMBER_PATH = os.path.join(BASE_DIR, "data", "member.json")
 def read_json_from_minio(bucket_name, file_name):
     try:
         response = minio_client.get_object(bucket_name, file_name)
-        data = json.loads(response.read())
+        data = response.read().decode('utf-8')  # 바이트 데이터를 문자열로 디코딩
+        print(f"Data from MinIO ({file_name}): {data}")  # 데이터 출력
+        data = json.loads(data)  # 문자열 데이터를 JSON으로 파싱
         response.close()
         response.release_conn()
         return data
     except S3Error as e:
         print(f"Error occurred: {e}")
         return {"raids": []} if file_name == RAID_FILE else {"members": []}
-
 
 # JSON 파일 쓰기
 def write_json_to_minio(data, bucket_name, file_name):
@@ -58,11 +59,10 @@ def write_json_to_minio(data, bucket_name, file_name):
             file_name,
             io.BytesIO(json_data.encode("utf-8")),
             length=len(json_data),
-            content_type="application/json",
+            content_type='application/json'
         )
     except S3Error as e:
         print(f"Error occurred: {e}")
-
 
 # JSON 파일 읽기 (로컬)
 def read_json(file_path):
