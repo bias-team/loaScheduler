@@ -32,7 +32,7 @@ members = read_json(MEMBER_PATH)
 @app.route("/")
 def index():
     if "user_id" in session:
-        return render_template("index.html")
+        return render_template("index.html", user_id=session["user_id"])
     return redirect(url_for("login"))
 
 
@@ -99,10 +99,46 @@ def get_members():
 
 @app.route("/raids", methods=["POST"])
 def add_raid():
-    new_raid = request.json
-    raids["raids"].append(new_raid)
-    write_json(raids, RAID_TABLE_PATH)
-    return jsonify(new_raid), 201
+    if "user_id" in session:
+        new_raid = request.json
+        new_raid["creator"] = session["user_id"]  # 레이드 생성자 추가
+        raids["raids"].append(new_raid)
+        write_json(raids, RAID_TABLE_PATH)
+        return jsonify(new_raid), 201
+    return jsonify({"error": "Unauthorized"}), 401
+
+
+@app.route("/raids/<string:raid_name>", methods=["PUT"])
+def update_raid(raid_name):
+    if "user_id" in session:
+        updated_raid = request.json
+        for raid in raids["raids"]:
+            if (
+                raid["raid_name"] == raid_name
+                and raid.get("creator") == session["user_id"]
+            ):
+                raid.update(updated_raid)
+                write_json(raids, RAID_TABLE_PATH)
+                return jsonify(raid), 200
+        return jsonify({"error": "권한이 없습니다."}), 403
+    return jsonify({"error": "Unauthorized"}), 401
+
+
+@app.route("/raids/<string:raid_name>", methods=["DELETE"])
+def delete_raid(raid_name):
+    if "user_id" in session:
+        global raids
+        raids["raids"] = [
+            raid
+            for raid in raids["raids"]
+            if not (
+                raid["raid_name"] == raid_name
+                and raid.get("creator") == session["user_id"]
+            )
+        ]
+        write_json(raids, RAID_TABLE_PATH)
+        return "", 204
+    return jsonify({"error": "Unauthorized"}), 401
 
 
 @app.route("/members", methods=["POST"])

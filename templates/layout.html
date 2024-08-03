@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>편향팀 일정 관리</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/styles.css') }}"
+    />
+  </head>
+  <body data-user-id="{{ user_id }}">
+    <header>
+      <h1>편향팀 일정 관리</h1>
+      <a href="{{ url_for('logout') }}">로그아웃</a>
+    </header>
+    <main>
+      <article>
+        <h2>1 테이블(레이드) 섹션</h2>
+        <button id="addRaid">레이드 추가</button>
+        <table id="raidTable">
+          <thead>
+            <tr>
+              <th>레이드 이름</th>
+              <th>날짜</th>
+              <th>시간</th>
+              <th>크기</th>
+              <th>참가자</th>
+              <th>상태</th>
+              <th>생성자</th>
+              <th>수정</th>
+              <th>삭제</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- 레이드 데이터가 여기에 동적으로 추가됩니다 -->
+          </tbody>
+        </table>
+      </article>
+      <aside>
+        <h2>2 캐릭터 목록</h2>
+        <ul id="memberList">
+          <!-- 동적으로 추가될 캐릭터 목록 -->
+          <li id="addMemberContainer">
+            <button id="addMember">+</button>
+          </li>
+        </ul>
+        <div id="loginIdContainer">
+          LOGIN ID: <span id="loginId">{{ user_id }}</span>
+        </div>
+      </aside>
+    </main>
+    <footer>
+      <p>편향팀 일정 관리 시스템</p>
+    </footer>
+
+    <div id="memberPopup" class="popup" style="display: none">
+      <h3>캐릭터 추가</h3>
+      <label for="memberId">ID:</label>
+      <input type="text" id="memberId" disabled />
+      <label for="nickname">닉네임:</label>
+      <input type="text" id="nickname" />
+      <label for="position">포지션:</label>
+      <select id="position">
+        <option value="딜러">딜러</option>
+        <option value="서포터">서포터</option>
+      </select>
+      <label for="remark">비고:</label>
+      <input type="text" id="remark" placeholder="1640 엘40 방풀초" />
+      <button id="saveMember">저장</button>
+      <button id="closePopup">닫기</button>
+    </div>
+
+    <div id="editPopup" class="popup" style="display: none">
+      <h3>캐릭터 수정</h3>
+      <label for="editId">ID:</label>
+      <input type="text" id="editId" disabled />
+      <label for="editNickname">닉네임:</label>
+      <input type="text" id="editNickname" />
+      <label for="editPosition">포지션:</label>
+      <select id="editPosition">
+        <option value="딜러">딜러</option>
+        <option value="서포터">서포터</option>
+      </select>
+      <label for="editRemark">비고:</label>
+      <input type="text" id="editRemark" />
+      <button id="saveEdit">확인</button>
+      <button id="cancelEdit">취소</button>
+    </div>
+
+    <div id="raidPopup" class="popup" style="display: none">
+      <h3>레이드 추가/수정</h3>
+      <div class="form-group">
+        <label for="raidName">레이드 이름:</label>
+        <input type="text" id="raidName" />
+      </div>
+      <div class="form-group">
+        <label for="raidSelect">레이드:</label>
+        <select id="raidSelect">
+          <option value="일리아칸" data-max-size="8">일리아칸</option>
+          <option value="카양겔" data-max-size="4">카양겔</option>
+          <option value="상아탑" data-max-size="4">상아탑</option>
+          <option value="카멘" data-max-size="8">카멘</option>
+          <option value="에키드나" data-max-size="8">에키드나</option>
+          <option value="베히모스" data-max-size="16">베히모스</option>
+          <option value="에기르" data-max-size="8">에기르</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="raidDate">날짜:</label>
+        <input type="date" id="raidDate" />
+      </div>
+      <div class="form-group">
+        <label for="raidTime">시간:</label>
+        <input type="time" id="raidTime" step="600" />
+      </div>
+      <div class="form-group">
+        <label for="raidMaxSize">크기:</label>
+        <input type="number" id="raidMaxSize" readonly />
+      </div>
+      <div class="form-group">
+        <label for="raidStatus">상태:</label>
+        <select id="raidStatus">
+          <option value="예정">예정</option>
+          <option value="확정">확정</option>
+          <option value="완료">완료</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="raidRemark">비고:</label>
+        <input type="text" id="raidRemark" />
+      </div>
+      <button id="saveRaid">저장</button>
+      <button id="closeRaidPopup">닫기</button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/raidmanage.js') }}"></script>
+  </body>
+</html>
