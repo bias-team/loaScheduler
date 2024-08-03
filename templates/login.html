@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>로그인</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/styles.css') }}"
+    />
+  </head>
+  <body>
+    <header>
+      <h1>편향팀 일정 관리 시스템</h1>
+    </header>
+    <main>
+      <form method="POST" action="{{ url_for('login') }}">
+        <label for="user_id">ID:</label>
+        <input type="text" id="user_id" name="user_id" required />
+        <button type="submit">로그인</button>
+      </form>
+      <button id="signupButton">회원가입</button>
+    </main>
+    <footer>
+      <p>편향팀 일정 관리 시스템</p>
+    </footer>
+
+    <div id="signupPopup" class="popup" style="display: none">
+      <h3>회원가입</h3>
+      <label for="signupId">ID:</label>
+      <input type="text" id="signupId" />
+      <button id="signupConfirm">가입</button>
+      <button id="signupCancel">취소</button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+  </body>
+</html>

@@ -1,8 +1,10 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 import json
 import os
+import re
 
 app = Flask(__name__)
+app.secret_key = "your_secret_key"  # 세션을 위한 비밀 키 설정
 
 # 파일 경로 설정
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -29,7 +31,40 @@ members = read_json(MEMBER_PATH)
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    if "user_id" in session:
+        return render_template("index.html")
+    return redirect(url_for("login"))
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        user_id = request.form["user_id"]
+        session["user_id"] = user_id
+        return redirect(url_for("index"))
+    return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+    session.pop("user_id", None)
+    return redirect(url_for("login"))
+
+
+@app.route("/signup", methods=["POST"])
+def signup():
+    user_id = request.json["user_id"]
+    if re.match(r"^[a-zA-Z0-9]{2,20}$", user_id):
+        session["user_id"] = user_id
+        return jsonify({"message": "가입 완료"}), 201
+    return (
+        jsonify(
+            {
+                "error": "유효하지 않은 ID입니다. 영문자와 숫자로 구성된 2~20자리 문자열이어야 합니다."
+            }
+        ),
+        400,
+    )
 
 
 @app.route("/raids", methods=["GET"])
@@ -39,7 +74,13 @@ def get_raids():
 
 @app.route("/members", methods=["GET"])
 def get_members():
-    return jsonify(members)
+    if "user_id" in session:
+        user_id = session["user_id"]
+        user_members = [
+            member for member in members["members"] if member["id"] == user_id
+        ]
+        return jsonify({"members": user_members})
+    return jsonify({"error": "Unauthorized"}), 401
 
 
 @app.route("/raids", methods=["POST"])
@@ -52,31 +93,35 @@ def add_raid():
 
 @app.route("/members", methods=["POST"])
 def add_member():
-    new_member = request.json
-    members["members"].append(new_member)
-    write_json(members, MEMBER_PATH)
-    return jsonify(new_member), 201
+    if "user_id" in session:
+        user_id = session["user_id"]
+        new_member = request.json
+        new_member["id"] = user_id  # 세션의 사용자 ID를 사용
+        members["members"].append(new_member)
+        write_json(members, MEMBER_PATH)
+        return jsonify(new_member), 201
+    return jsonify({"error": "Unauthorized"}), 401
 
 
-@app.route("/members/<string:nickname>", methods=["DELETE"])
-def delete_member(nickname):
+@app.route("/members/<string:id>", methods=["DELETE"])
+def delete_member(id):
     global members
-    members["members"] = [
-        member for member in members["members"] if member["nickname"] != nickname
-    ]
+    members["members"] = [member for member in members["members"] if member["id"] != id]
     write_json(members, MEMBER_PATH)
     return "", 204
 
 
-@app.route("/members/<string:nickname>", methods=["PUT"])
-def update_member(nickname):
-    updated_member = request.json
-    for member in members["members"]:
-        if member["nickname"] == nickname:
-            member.update(updated_member)
-            write_json(members, MEMBER_PATH)
-            return jsonify(member), 200
-    return jsonify({"error": "Member not found"}), 404
+@app.route("/members/<string:id>", methods=["PUT"])
+def update_member(id):
+    if "user_id" in session:
+        user_id = session["user_id"]
+        updated_member = request.json
+        for member in members["members"]:
+            if member["id"] == id and member["id"] == user_id:
+                member.update(updated_member)
+                write_json(members, MEMBER_PATH)
+                return jsonify(member), 200
+    return jsonify({"error": "Unauthorized"}), 401
 
 
 if __name__ == "__main__":

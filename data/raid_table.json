@@ -1,35 +1,36 @@
 {
-    "raids": [
-      {
-        "raid_name": "카이슈테르",
-        "date": "2023-10-05",
-        "time": "20:00",
-        "raid_size": "4",
-        "participants": [
-          {"nickname": "지노맛", "position": "딜러"},
-          {"nickname": "우는데", "position": "딜러"},
-          {"nickname": "편향티", "position": "서포터"}
-        ],
-        "status": "예정",
-        "remakr": "여기있는 json 들은 임시데이터임 추후에 변경될예정"
-      },
-      {
-        "raid_name": "카멘",
-        "date": "2023-10-12",
-        "time": "21:00",
-        "raid_size": "8인",
-        "participants": [
-          {"nickname": "캐릭터명1", "position": "딜러"},
-          {"nickname": "캐릭터명2", "position": "딜러"},
-          {"nickname": "캐릭터명3", "position": "서포터"},
-          {"nickname": "캐릭터명4", "position": "딜러"},
-          {"nickname": "캐릭터명5", "position": "딜러"},
-          {"nickname": "캐릭터명6", "position": "딜러"},
-          {"nickname": "캐릭터명7", "position": "서포터"},
-          {"nickname": "캐릭터명8", "position": "딜러"}
-        ],
-        "status": "예정"
-      }
-    ]
-  }
-  
+  "raids": [
+    {
+      "raid_name": "쿠크 경험치작",
+      "raid": "쿠크세이튼",
+      "date": "2024-10-05",
+      "time": "20:00",
+      "raid_max_size": "4",
+      "participants": [
+        { "nickname": "지노맛", "position": "딜러" },
+        { "nickname": "우는데", "position": "딜러" },
+        { "nickname": "편향티", "position": "서포터" }
+      ],
+      "status": "예정",
+      "remakr": "여기있는 json 들은 임시데이터임 추후에 변경될예정"
+    },
+    {
+      "raid_name": "카멘 노말 트라이",
+      "raid": "카멘",
+      "date": "2024-8-02",
+      "time": "21:00",
+      "raid_max_size": "8",
+      "participants": [
+        { "nickname": "캐릭터명1", "position": "딜러" },
+        { "nickname": "캐릭터명2", "position": "딜러" },
+        { "nickname": "캐릭터명3", "position": "서포터" },
+        { "nickname": "캐릭터명4", "position": "딜러" },
+        { "nickname": "캐릭터명5", "position": "딜러" },
+        { "nickname": "캐릭터명6", "position": "딜러" },
+        { "nickname": "캐릭터명7", "position": "서포터" },
+        { "nickname": "캐릭터명8", "position": "딜러" }
+      ],
+      "status": "예정"
+    }
+  ]
+}

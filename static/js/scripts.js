@@ -1,4 +1,3 @@
-// static/js/scripts.js
 $(document).ready(function() {
   // 더블 클릭 시 테이블 섹션 추가
   $("#mainTable").on("dblclick", function() {
@@ -24,33 +23,36 @@ $(document).ready(function() {
     $("#cancelChanges").hide();
   });
 
-  // 회원 목록에 마우스를 올리면 추가 버튼 표시
-  $("#memberList")
-    .on("mouseenter", function() {
-      $("#addMember").show();
-    })
-    .on("mouseleave", function() {
-      $("#addMember").hide();
-    });
-
-  // 회원 추가 팝업 표시
+  // 캐릭터 추가 팝업 표시
   $("#addMember").on("click", function() {
-    $("#memberPopup").show();
+    const userId = sessionStorage.getItem("user_id");
+    if (userId) {
+      $("#memberId").val(userId);
+      $("#memberPopup").show();
+    } else {
+      $.get("/members", function(data) {
+        const userId = data.members.length > 0 ? data.members[0].id : "";
+        $("#memberId").val(userId);
+        $("#memberPopup").show();
+      });
+    }
   });
 
-  // 회원 추가 팝업 닫기
+  // 캐릭터 추가 팝업 닫기
   $("#closePopup").on("click", function() {
     $("#memberPopup").hide();
   });
 
-  // 회원 추가 저장
+  // 캐릭터 추가 저장
   $("#saveMember").on("click", function() {
+    const memberId = $("#memberId").val();
     const nickname = $("#nickname").val();
     const position = $("#position").val();
     const remark = $("#remark").val();
 
-    if (nickname && position && remark) {
+    if (memberId && nickname && position && remark) {
       const newMember = {
+        id: memberId,
         nickname: nickname,
         position: position,
         remark: remark,
@@ -70,7 +72,7 @@ $(document).ready(function() {
     }
   });
 
-  // 회원 목록 불러오기
+  // 캐릭터 목록 불러오기
   function loadMembers() {
     $.get("/members", function(data) {
       $("#memberList").empty();
@@ -82,24 +84,28 @@ $(document).ready(function() {
             member.position +
             "): " +
             member.remark +
-            '<button class="editMember" data-nickname="' +
-            member.nickname +
-            '">수정</button><button class="deleteMember" data-nickname="' +
-            member.nickname +
+            '<button class="editMember" data-id="' +
+            member.id +
+            '">수정</button><button class="deleteMember" data-id="' +
+            member.id +
             '">삭제</button></li>'
         );
       });
+      $("#memberList").append(
+        '<li id="addMemberContainer"><button id="addMember">+</button></li>'
+      );
     });
   }
 
   loadMembers();
 
-  // 회원 수정 버튼 클릭 시
+  // 캐릭터 수정 버튼 클릭 시
   $(document).on("click", ".editMember", function() {
-    const nickname = $(this).data("nickname");
+    const id = $(this).data("id");
     $.get("/members", function(data) {
-      const member = data.members.find(member => member.nickname === nickname);
+      const member = data.members.find(member => member.id === id);
       if (member) {
+        $("#editId").val(member.id);
         $("#editNickname").val(member.nickname);
         $("#editPosition").val(member.position);
         $("#editRemark").val(member.remark);
@@ -108,16 +114,21 @@ $(document).ready(function() {
     });
   });
 
-  // 회원 수정 저장
+  // 캐릭터 수정 저장
   $("#saveEdit").on("click", function() {
+    const id = $("#editId").val();
     const nickname = $("#editNickname").val();
     const position = $("#editPosition").val();
     const remark = $("#editRemark").val();
-    const updatedMember = { position: position, remark: remark };
+    const updatedMember = {
+      nickname: nickname,
+      position: position,
+      remark: remark,
+    };
 
     $.ajax({
       type: "PUT",
-      url: "/members/" + nickname,
+      url: "/members/" + id,
       contentType: "application/json",
       data: JSON.stringify(updatedMember),
       success: function() {
@@ -127,17 +138,17 @@ $(document).ready(function() {
     });
   });
 
-  // 회원 수정 팝업 닫기
+  // 캐릭터 수정 팝업 닫기
   $("#cancelEdit").on("click", function() {
     $("#editPopup").hide();
   });
 
-  // 회원 삭제 버튼 클릭 시
+  // 캐릭터 삭제 버튼 클릭 시
   $(document).on("click", ".deleteMember", function() {
-    const nickname = $(this).data("nickname");
+    const id = $(this).data("id");
     $.ajax({
       type: "DELETE",
-      url: "/members/" + nickname,
+      url: "/members/" + id,
       success: function() {
         loadMembers();
       },
@@ -146,14 +157,14 @@ $(document).ready(function() {
 
   // 팝업 닫을 때 초기화
   $("#memberPopup").on("hidden.bs.modal", function() {
-    $("#nickname").prop("disabled", false);
-    $("#saveMember").text("저장");
+    $("#memberId").val("");
     $("#nickname").val("");
     $("#position").val("딜러");
     $("#remark").val("");
   });
 
   $("#editPopup").on("hidden.bs.modal", function() {
+    $("#editId").val("");
     $("#editNickname").val("");
     $("#editPosition").val("딜러");
     $("#editRemark").val("");
