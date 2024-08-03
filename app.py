@@ -58,6 +58,7 @@ def write_json_to_minio(data, bucket_name, file_name):
             file_name,
             io.BytesIO(json_data.encode("utf-8")),
             length=len(json_data),
+            content_type="application/json",
         )
     except S3Error as e:
         print(f"Error occurred: {e}")
