@@ -23,6 +23,12 @@
             "nickname": "우는데",
             "position": "딜러",
             "remark": "기타 비고 사항"
+        },
+        {
+            "id": "newuser",
+            "nickname": "닉네임",
+            "position": "딜러",
+            "remark": "1640 백사멸 받피증 극특 등등 메모"
         }
     ]
 }

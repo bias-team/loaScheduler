@@ -1,4 +1,6 @@
 $(document).ready(function() {
+  console.log("JavaScript 파일 로드됨"); // JavaScript 파일 로드 확인
+
   // 더블 클릭 시 테이블 섹션 추가
   $("#mainTable").on("dblclick", function() {
     $("#mainTable tbody").append(
@@ -24,7 +26,8 @@ $(document).ready(function() {
   });
 
   // 캐릭터 추가 팝업 표시
-  $("#addMember").on("click", function() {
+  $(document).on("click", "#addMember", function() {
+    console.log("캐릭터 추가 버튼 클릭됨"); // 디버깅을 위한 콘솔 로그
     const userId = sessionStorage.getItem("user_id");
     if (userId) {
       $("#memberId").val(userId);
@@ -76,24 +79,37 @@ $(document).ready(function() {
   function loadMembers() {
     $.get("/members", function(data) {
       $("#memberList").empty();
-      data.members.forEach(function(member) {
+      const members = data.members;
+      if (members.length === 0) {
         $("#memberList").append(
-          "<li>" +
-            member.nickname +
-            " (" +
-            member.position +
-            "): " +
-            member.remark +
-            '<button class="editMember" data-id="' +
-            member.id +
-            '">수정</button><button class="deleteMember" data-id="' +
-            member.id +
-            '">삭제</button></li>'
+          '<li id="addMemberContainer"><button id="addMember">+</button></li>'
         );
-      });
-      $("#memberList").append(
-        '<li id="addMemberContainer"><button id="addMember">+</button></li>'
-      );
+      } else {
+        members.forEach(function(member, index) {
+          const deleteButton =
+            members.length > 1
+              ? '<button class="deleteMember" data-nickname="' +
+                member.nickname +
+                '">삭제</button>'
+              : "";
+          $("#memberList").append(
+            "<li>" +
+              member.nickname +
+              " (" +
+              member.position +
+              "): " +
+              member.remark +
+              '<button class="editMember" data-id="' +
+              member.id +
+              '">수정</button>' +
+              deleteButton +
+              "</li>"
+          );
+        });
+        $("#memberList").append(
+          '<li id="addMemberContainer"><button id="addMember">+</button></li>'
+        );
+      }
     });
   }
 
@@ -145,14 +161,17 @@ $(document).ready(function() {
 
   // 캐릭터 삭제 버튼 클릭 시
   $(document).on("click", ".deleteMember", function() {
-    const id = $(this).data("id");
-    $.ajax({
-      type: "DELETE",
-      url: "/members/" + id,
-      success: function() {
-        loadMembers();
-      },
-    });
+    const nickname = $(this).data("nickname");
+    const confirmed = confirm(`${nickname} 삭제하시겠습니까?`);
+    if (confirmed) {
+      $.ajax({
+        type: "DELETE",
+        url: "/members/" + nickname,
+        success: function() {
+          loadMembers();
+        },
+      });
+    }
   });
 
   // 팝업 닫을 때 초기화

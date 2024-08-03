@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import json
 import os
 import re
@@ -40,8 +40,12 @@ def index():
 def login():
     if request.method == "POST":
         user_id = request.form["user_id"]
-        session["user_id"] = user_id
-        return redirect(url_for("index"))
+        if any(member["id"] == user_id for member in members["members"]):
+            session["user_id"] = user_id
+            return redirect(url_for("index"))
+        return render_template(
+            "login.html", error="로그인 실패: ID가 존재하지 않습니다."
+        )
     return render_template("login.html")
 
 
@@ -55,6 +59,16 @@ def logout():
 def signup():
     user_id = request.json["user_id"]
     if re.match(r"^[a-zA-Z0-9]{2,20}$", user_id):
+        if any(member["id"] == user_id for member in members["members"]):
+            return jsonify({"error": "ID가 이미 존재합니다."}), 400
+        new_member = {
+            "id": user_id,
+            "nickname": "닉네임",
+            "position": "딜러",
+            "remark": "1640 백사멸 받피증 극특 등등 메모",
+        }
+        members["members"].append(new_member)
+        write_json(members, MEMBER_PATH)
         session["user_id"] = user_id
         return jsonify({"message": "가입 완료"}), 201
     return (
@@ -103,21 +117,28 @@ def add_member():
     return jsonify({"error": "Unauthorized"}), 401
 
 
-@app.route("/members/<string:id>", methods=["DELETE"])
-def delete_member(id):
-    global members
-    members["members"] = [member for member in members["members"] if member["id"] != id]
-    write_json(members, MEMBER_PATH)
-    return "", 204
+@app.route("/members/<string:nickname>", methods=["DELETE"])
+def delete_member(nickname):
+    if "user_id" in session:
+        user_id = session["user_id"]
+        global members
+        members["members"] = [
+            member
+            for member in members["members"]
+            if not (member["id"] == user_id and member["nickname"] == nickname)
+        ]
+        write_json(members, MEMBER_PATH)
+        return "", 204
+    return jsonify({"error": "Unauthorized"}), 401
 
 
-@app.route("/members/<string:id>", methods=["PUT"])
-def update_member(id):
+@app.route("/members/<string:nickname>", methods=["PUT"])
+def update_member(nickname):
     if "user_id" in session:
         user_id = session["user_id"]
         updated_member = request.json
         for member in members["members"]:
-            if member["id"] == id and member["id"] == user_id:
+            if member["id"] == user_id and member["nickname"] == nickname:
                 member.update(updated_member)
                 write_json(members, MEMBER_PATH)
                 return jsonify(member), 200
