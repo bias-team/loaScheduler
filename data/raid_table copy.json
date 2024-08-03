@@ -7,15 +7,14 @@
       "time": "20:00",
       "raid_max_size": "4",
       "participants": [
+
         {
           "nickname": "우는데",
-          "position": "딜러",
-          "is_user_character": false
+          "position": "딜러"
         },
         {
           "nickname": "편향티",
-          "position": "서포터",
-          "is_user_character": false
+          "position": "서포터"
         }
       ],
       "status": "예정",
@@ -30,43 +29,35 @@
       "participants": [
         {
           "nickname": "캐릭터명1",
-          "position": "딜러",
-          "is_user_character": false
+          "position": "딜러"
         },
         {
           "nickname": "캐릭터명2",
-          "position": "딜러",
-          "is_user_character": false
+          "position": "딜러"
         },
         {
           "nickname": "캐릭터명3",
-          "position": "서포터",
-          "is_user_character": false
+          "position": "서포터"
         },
         {
           "nickname": "캐릭터명4",
-          "position": "딜러",
-          "is_user_character": false
+          "position": "딜러"
         },
         {
           "nickname": "캐릭터명5",
-          "position": "딜러",
-          "is_user_character": false
+          "position": "딜러"
         },
         {
           "nickname": "캐릭터명6",
-          "position": "딜러",
-          "is_user_character": false
+          "position": "딜러"
         },
         {
           "nickname": "캐릭터명7",
-          "position": "서포터",
-          "is_user_character": false
+          "position": "서포터"
         },
         {
           "nickname": "캐릭터명8",
-          "position": "딜러",
-          "is_user_character": false
+          "position": "딜러"
         }
       ],
       "status": "예정"
@@ -79,9 +70,9 @@
       "raid_max_size": "8",
       "participants": [
         {
-          "nickname": "aaaa",
+          "nickname": "지노맛",
           "position": "딜러",
-          "is_user_character": false
+          "remark": ""
         }
       ],
       "status": "예정",
