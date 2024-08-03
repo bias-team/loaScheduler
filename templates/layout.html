@@ -16,15 +16,13 @@
     </header>
     <main>
       <article>
-        <h2>1 테이블(레이드) 섹션</h2>
+        <h2>테이블(레이드) 섹션</h2>
         <button id="addRaid">레이드 추가</button>
         <table id="raidTable">
           <thead>
             <tr>
-              <th>레이드 이름</th>
-              <th>날짜</th>
-              <th>시간</th>
-              <th>크기</th>
+              <th>레이드 + 레이드 이름</th>
+              <th>날짜 + 시간</th>
               <th>참가자</th>
               <th>상태</th>
               <th>생성자</th>
@@ -36,9 +34,11 @@
             <!-- 레이드 데이터가 여기에 동적으로 추가됩니다 -->
           </tbody>
         </table>
+        <button id="saveChanges" style="display: none">저장</button>
+        <button id="cancelChanges" style="display: none">취소</button>
       </article>
       <aside>
-        <h2>2 캐릭터 목록</h2>
+        <h2>캐릭터 목록</h2>
         <ul id="memberList">
           <!-- 동적으로 추가될 캐릭터 목록 -->
           <li id="addMemberContainer">
@@ -132,6 +132,10 @@
       </div>
       <button id="saveRaid">저장</button>
       <button id="closeRaidPopup">닫기</button>
+    </div>
+
+    <div id="deleteOverlay" class="overlay" style="display: none">
+      <p>삭제 영역</p>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

@@ -63,7 +63,7 @@ def signup():
             return jsonify({"error": "ID가 이미 존재합니다."}), 400
         new_member = {
             "id": user_id,
-            "nickname": "닉네임",
+            "nickname": "임의닉네임",
             "position": "딜러",
             "remark": "1640 백사멸 받피증 극특 등등 메모",
         }
@@ -83,7 +83,17 @@ def signup():
 
 @app.route("/raids", methods=["GET"])
 def get_raids():
-    return jsonify(raids)
+    if "user_id" in session:
+        user_id = session["user_id"]
+        for raid in raids["raids"]:
+            for participant in raid["participants"]:
+                participant["is_user_character"] = participant["nickname"] in [
+                    member["nickname"]
+                    for member in members["members"]
+                    if member["id"] == user_id
+                ]
+        return jsonify(raids)
+    return jsonify({"error": "Unauthorized"}), 401
 
 
 @app.route("/members", methods=["GET"])
@@ -141,6 +151,45 @@ def delete_raid(raid_name):
     return jsonify({"error": "Unauthorized"}), 401
 
 
+@app.route("/raids/<string:raid_name>/add_participant", methods=["POST"])
+def add_participant_to_raid(raid_name):
+    if "user_id" in session:
+        participant = request.json
+        if "nickname" not in participant or "position" not in participant:
+            return jsonify({"error": "참가자 데이터가 올바르지 않습니다."}), 400
+        for raid in raids["raids"]:
+            if raid["raid_name"] == raid_name:
+                if raid["status"] != "예정":
+                    return (
+                        jsonify(
+                            {
+                                "error": "레이드 상태가 예정일 때만 참가자를 추가할 수 있습니다."
+                            }
+                        ),
+                        400,
+                    )
+                if not any(
+                    p["nickname"] == participant["nickname"]
+                    for p in raid["participants"]
+                ):
+                    max_participants = int(raid["raid_max_size"]) + 4
+                    if len(raid["participants"]) >= max_participants:
+                        return (
+                            jsonify(
+                                {
+                                    "error": "레이드 크기 초과로 참가자를 추가할 수 없습니다."
+                                }
+                            ),
+                            400,
+                        )
+                    raid["participants"].append(participant)
+                    write_json(raids, RAID_TABLE_PATH)
+                    return jsonify(raid), 201
+                else:
+                    return jsonify({"error": "이미 등록된 참가자입니다."}), 400
+    return jsonify({"error": "Unauthorized"}), 401
+
+
 @app.route("/members", methods=["POST"])
 def add_member():
     if "user_id" in session:
@@ -178,6 +227,7 @@ def update_member(nickname):
                 member.update(updated_member)
                 write_json(members, MEMBER_PATH)
                 return jsonify(member), 200
+        return jsonify({"error": "권한이 없습니다."}), 403
     return jsonify({"error": "Unauthorized"}), 401
 
 
