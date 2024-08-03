@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>편향팀 일정 관리</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>편향팀 일정 관리</h1>
+    </header>
+    <main>
+        <article>
+            <h2> 테이블(레이드) </h2>
+            <table id="mainTable">
+                <thead>
+                    <tr>
+                        <th>회원 목록</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 동적으로 추가될 테이블 섹션 -->
+                </tbody>
+            </table>
+            <button id="saveChanges" style="display:none;">저장</button>
+            <button id="cancelChanges" style="display:none;">취소</button>
+        </article>
+        <aside>
+            <h2>2 회원 목록</h2>
+            <ul id="memberList">
+                <!-- 동적으로 추가될 회원 목록 -->
+                <li id="addMemberContainer">
+                    <button id="addMember">+</button>
+                </li>
+            </ul>
+    </main>
+    <footer>
+        <p>편향팀 일정 관리 시스템</p>
+    </footer>
+
+    <div id="memberPopup" class="popup" style="display:none;">
+        <h3>회원 추가</h3>
+        <label for="nickname">닉네임:</label>
+        <input type="text" id="nickname">
+        <label for="position">포지션:</label>
+        <select id="position">
+            <option value="딜러">딜러</option>
+            <option value="서포터">서포터</option>
+        </select>
+        <label for="remark">비고:</label>
+        <input type="text" id="remark" placeholder="1640 엘40 방풀초">
+        <button id="saveMember">저장</button>
+        <button id="closePopup">닫기</button>
+    </div>
+
+    <div id="editPopup" class="popup" style="display:none;">
+        <h3>회원 수정</h3>
+        <label for="editNickname">닉네임:</label>
+        <input type="text" id="editNickname" disabled>
+        <label for="editPosition">포지션:</label>
+        <select id="editPosition">
+            <option value="딜러">딜러</option>
+            <option value="서포터">서포터</option>
+        </select>
+        <label for="editRemark">비고:</label>
+        <input type="text" id="editRemark">
+        <button id="saveEdit">확인</button>
+        <button id="cancelEdit">취소</button>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
+</html>

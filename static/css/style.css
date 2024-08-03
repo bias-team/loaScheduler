@@ -1,0 +1,74 @@
+/* static/css/styles.css */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header, footer {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 1em;
+}
+
+main {
+    display: flex;
+    justify-content: space-between;
+    padding: 1em;
+}
+
+article, aside {
+    border: 1px solid #000;
+    padding: 1em;
+    margin: 0.5em;
+}
+
+article {
+    flex: 3;
+}
+
+aside {
+    flex: 1;
+    position: relative;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #000;
+    padding: 0.5em;
+    text-align: left;
+}
+
+button {
+    margin: 0.5em;
+    padding: 0.5em 1em;
+}
+
+#addMember {
+    display: none;
+    margin: 0;
+    padding: 0.5em;
+}
+
+#addMemberContainer {
+    list-style: none;
+}
+
+#memberList:hover #addMember {
+    display: inline-block;
+}
+
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}

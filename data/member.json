@@ -1,0 +1,22 @@
+{
+    "members": [
+        {
+            "id": "user123",
+            "nickname": "편향티",
+            "role": "서포터",
+            "remark": "1640 엘40 방풀초"
+        },
+        {
+            "id": "user789",
+            "nickname": "지노맛",
+            "role": "딜러",
+            "remark": "기타 비고 사항"
+        },
+        {
+            "id": "user456",
+            "nickname": "우는데",
+            "role": "딜러",
+            "remark": "기타 비고 사항"
+        }
+    ]
+}
