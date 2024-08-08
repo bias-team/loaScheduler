@@ -2,76 +2,82 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-}
-
-header, footer {
+  }
+  
+  header,
+  footer {
     background-color: #333;
     color: #fff;
     text-align: center;
     padding: 1em;
-    box-sizing: border-box;
-}
-
-main {
+  }
+  
+  main {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    height: calc(100vh - 4em); /* header와 footer의 높이를 뺀 값 (1em + 1em) * 2 */
+    height: calc(100vh - 4em);
     max-width: 1024px;
     margin: 0 auto;
     padding: 1em;
     box-sizing: border-box;
-}
-
-article, aside {
+  }
+  
+  article,
+  aside {
     border: 1px solid #000;
     padding: 1em;
     margin: 0.5em;
-    width: 100%;
     box-sizing: border-box;
-}
-
-article {
-    flex: 3;
-}
-
-aside {
-    flex: 1;
+  }
+  
+  article {
+    width: 100%;
+  }
+  
+  aside {
+    width: 100%;
     position: relative;
-}
-
-table {
+  }
+  
+  table {
     width: 100%;
     border-collapse: collapse;
-}
-
-th, td {
+    box-sizing: border-box;
+  }
+  
+  th,
+  td {
     border: 1px solid #000;
     padding: 0.5em;
     text-align: left;
-}
-
-button {
+    box-sizing: border-box;
+  }
+  
+  button {
     margin: 1em;
     padding: 0.5em 1em;
-}
-
-#addMember {
+    box-sizing: border-box;
+  }
+  
+  #addMember {
     display: none;
     margin: 0;
     padding: 0.5em;
-}
-
-#addMemberContainer {
+    box-sizing: border-box;
+  }
+  
+  #addMemberContainer {
     list-style: none;
-}
-
-#memberList:hover #addMember {
+    box-sizing: border-box;
+  }
+  
+  #memberList:hover #addMember {
     display: inline-block;
-}
-
-.popup {
+  }
+  
+  .popup {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -79,49 +85,58 @@ button {
     background: #fff;
     padding: 20px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
-#searchId {
+    box-sizing: border-box;
+  }
+  
+  #searchId {
     width: calc(100% - 90px);
     margin-right: 10px;
-}
-
-#searchButton {
+    box-sizing: border-box;
+  }
+  
+  #searchButton {
     padding: 0.5em;
-}
-
-.form-group {
+    box-sizing: border-box;
+  }
+  
+  .form-group {
     margin-bottom: 15px;
-}
-
-.form-group label {
+    box-sizing: border-box;
+  }
+  
+  .form-group label {
     display: block;
     margin-bottom: 5px;
-}
-
-.form-group input, .form-group select {
+    box-sizing: border-box;
+  }
+  
+  .form-group input,
+  .form-group select {
     width: 100%;
     padding: 8px;
     box-sizing: border-box;
-}
-
-/* Media Queries */
-@media (min-width: 512px) {
+  }
+  
+  /* Media Queries */
+  @media (min-width: 512px) {
     main {
-        flex-direction: row;
+      flex-direction: row;
     }
-
-    article, aside {
-        width: 45%;
+  
+    article,
+    aside {
+      width: 45%;
     }
-}
-
-@media (max-width: 512px) {
+  }
+  
+  @media (max-width: 512px) {
     main {
-        flex-direction: column;
+      flex-direction: column;
     }
-
-    article, aside {
-        width: 100%;
+  
+    article,
+    aside {
+      width: 100%;
     }
-}
+  }
+  
