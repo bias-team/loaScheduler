@@ -1,0 +1,22 @@
+services:
+  react-app:
+    build:
+      context: ./react
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./react:/bias-app
+      - /bias-app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: npm start
+
+  # flask-app:
+  #   build:
+  #     context: ./flask
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "5000:5000"
+  #   volumes:
+  #     - ./flask:/app
