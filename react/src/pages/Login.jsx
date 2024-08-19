@@ -1,66 +1,30 @@
-// import React, { useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
-
-// function Login() {
-//   const [userId, setUserId] = useState('');
-//   const [error, setError] = useState('');
-//   const navigate = useNavigate();
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     // 서버와 통신하여 로그인 로직 처리
-//     if (userId === 'testUser') { // 예시로 userId를 testUser로 가정
-//       navigate('/home');
-//     } else {
-//       setError('로그인 실패: ID가 존재하지 않습니다.');
-//     }
-//   };
-
-//   return (
-//     <div>
-//       <h2>로그인</h2>
-//       <form onSubmit={handleSubmit}>
-//         <label>
-//           사용자 ID:
-//           <input
-//             type="text"
-//             value={userId}
-//             onChange={(e) => setUserId(e.target.value)}
-//           />
-//         </label>
-//         <button type="submit">로그인</button>
-//         {error && <p style={{ color: 'red' }}>{error}</p>}
-//       </form>
-//     </div>
-//   );
-// }
-
-// export default Login;
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-function LoginPage({ setUser }) {
+function Login() {
   const [userId, setUserId] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    setUser(userId);
+  const handleLogin = (e) => {
+    e.preventDefault();
+    // 여기서 실제 로그인 API 요청을 보내고, 성공하면 아래 navigate 호출
     navigate('/home');
   };
 
   return (
-    <div>
+    <div className="login-container">
       <h2>Login</h2>
-      <input
-        type="text"
-        placeholder="Enter User ID"
-        value={userId}
-        onChange={(e) => setUserId(e.target.value)}
-      />
-      <button onClick={handleLogin}>Login</button>
+      <form onSubmit={handleLogin}>
+        <input
+          type="text"
+          placeholder="User ID"
+          value={userId}
+          onChange={(e) => setUserId(e.target.value)}
+        />
+        <button type="submit">Login</button>
+      </form>
     </div>
   );
 }
 
-export default LoginPage;
+export default Login;

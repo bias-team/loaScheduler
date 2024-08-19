@@ -1,0 +1,46 @@
+{
+    "raids": [
+      {
+        "id": "a0a0",
+        "raid_name": "쿠크 raid name asdf",
+        "raid": "쿠크세이튼",
+        "date": "2024-10-05",
+        "time": "20:00",
+        "raid_max_size": "4",
+        "participants": [
+          {
+            "id": "b1a0",
+            "nickname": "우는데",
+            "role": "딜러"
+          },
+          {
+            "id": "a0a0",
+            "nickname": "편향티",
+            "role": "서포터"
+          }
+        ],
+        "status": "예정",
+        "remark": "여기있는 json 들은 임시데이터임 추후에 변경될예정"
+      },
+      {
+        "id": "b1a0",
+        "raid_name": "테스트 레이드 테이블",
+        "raid": "일리아칸",
+        "date": "2024-08-03",
+        "time": "19:55",
+        "raid_max_size": "8",
+        "participants": [
+          {
+            "id": "okho04",
+            "nickname": "지노맛",
+            "role": "딜러",
+            "remark": ""
+          }
+        ],
+        "status": "예정",
+        "remark": "",
+        "creator": "okho04"
+      }
+    ]
+  }
+  

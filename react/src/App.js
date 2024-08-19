@@ -1,16 +1,15 @@
-import React, { useState } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import LoginPage from "./pages/LoginPage";
-import HomePage from "./pages/HomePage";
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import './styles.css';
 
 function App() {
-  const [user, setUser] = useState(null);
-
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LoginPage setUser={setUser} />} />
-        <Route path="/home" element={<HomePage user={user} />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/home" element={<Home />} />
       </Routes>
     </Router>
   );
