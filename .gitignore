@@ -198,3 +198,5 @@ cython_debug/
 docs/bias-ob/
 docs/desktop.ini
 Secret.yaml
+node_modules
+memo
