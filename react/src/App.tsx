@@ -1,19 +1,18 @@
+// App.tsx
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { Provider } from 'react-redux';
-import store from './store';
 import Home from './components/Home';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 const App: React.FC = () => {
   return (
-    <Provider store={store}>
+    <ThemeProvider>
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
-          {/* Add more routes here */}
         </Routes>
       </Router>
-    </Provider>
+    </ThemeProvider>
   );
 };
 

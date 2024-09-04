@@ -1,33 +1,33 @@
-// src\components\Login.tsx
+// src/components/Login.tsx
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { login } from '../store/memberSlice';
 
-const Login: React.FC = () => {
-    const [username, setUsername] = useState('');
-    const dispatch = useDispatch();
+interface LoginProps {
+  onLogin: (username: string) => void;
+}
 
-    const handleLogin = () => {
-        // Mock login process
-        if (username === 'tester') {
-            dispatch(login({ id: 1, username: 'tester' }));
-        } else {
-            alert('Invalid username. Use "tester" to log in.');
-        }
-    };
+const Login: React.FC<LoginProps> = ({ onLogin }) => {
+  const [username, setUsername] = useState('');
 
-    return (
-        <div>
-            <h2>Login</h2>
-            <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Username"
-            />
-            <button onClick={handleLogin}>Login</button>
-        </div>
-    );
+  const handleLogin = () => {
+    if (username === 'tester') {
+      onLogin(username);
+    } else {
+      alert('Invalid username. Use "tester" to log in.');
+    }
+  };
+
+  return (
+    <div>
+      <h2>Login</h2>
+      <input
+        type="text"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        placeholder="Username"
+      />
+      <button onClick={handleLogin}>Login</button>
+    </div>
+  );
 };
 
 export default Login;

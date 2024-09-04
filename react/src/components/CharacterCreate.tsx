@@ -1,13 +1,15 @@
-// src\components\CharacterCreate.tsx
+// src/components/CharacterCreate.tsx
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { addCharacter } from '../store/characterSlice';
+import { Character } from '../types';
 
-const CharacterCreate: React.FC = () => {
-  const dispatch = useDispatch();
-  const [character, setCharacter] = useState({
-    charJob: '',
+interface CharacterCreateProps {
+  onAddCharacter: (character: Character) => void;
+}
+
+const CharacterCreate: React.FC<CharacterCreateProps> = ({ onAddCharacter }) => {
+  const [character, setCharacter] = useState<Omit<Character, 'charId'>>({
     charName: '',
+    charJob: '',
     charClass: '',
     charLevel: 1600,
   });
@@ -19,13 +21,12 @@ const CharacterCreate: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(addCharacter({
+    onAddCharacter({
       ...character,
-      charId: Date.now(), // 임시 ID 생성
-      id: 1, // 현재 로그인한 사용자 ID (실제로는 로그인 상태에서 가져와야 함)
+      charId: Date.now(),
       charLevel: Number(character.charLevel),
-    }));
-    setCharacter({ charJob: '', charName: '', charClass: '', charLevel: 1 });
+    });
+    setCharacter({ charName: '', charJob: '', charClass: '', charLevel: 1600 });
   };
 
   return (
