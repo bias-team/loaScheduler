@@ -1,15 +1,20 @@
-FROM node:20.16-alpine
+# Step 1: Build the React app
+FROM node:20.16-alpine as build
 
 WORKDIR /bias-app
 
 COPY package*.json /bias-app/
 
-RUN npm init -y 
-
 RUN npm install --force
 
 COPY . /bias-app
 
-EXPOSE 3000
+RUN npm run build
 
-CMD ["npm", "start"]
+# Step 2: Serve the app with Nginx
+FROM nginx:alpine
+
+COPY --from=build /bias-app/build /usr/share/nginx/html
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
