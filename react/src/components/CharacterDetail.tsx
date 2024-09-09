@@ -1,79 +1,86 @@
 import React, { useState } from 'react';
-import { Character, CharJob, CharClass } from '../types';
+import { Character, CharJob, getCharClassFromJob } from '../types';
+import { useUserStore } from '../stores/userStore';
 
 interface Props {
   character: Character;
   onClose: () => void;
   onUpdate: (updatedCharacter: Character) => void;
-  onUpdateSuccess: () => void;
+  onUpdateSuccess: () => void;  // 새로 추가된 prop
 }
 
 const CharacterDetail: React.FC<Props> = ({ character, onClose, onUpdate, onUpdateSuccess }) => {
-  const [newLevel, setNewLevel] = useState(character.charLevel.toString());
-  const [newJob, setNewJob] = useState(character.charJob);
-  const [newClass, setNewClass] = useState(character.charClass);
+  const { userKey } = useUserStore();
+  const [editedCharacter, setEditedCharacter] = useState<Character>({...character});
 
-  const handleLevelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewLevel(e.target.value);
-  };
-
-  const handleJobChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setNewJob(e.target.value as CharJob);
-  };
-
-  const handleClassChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setNewClass(e.target.value as CharClass);
-  };
-
-  const handleUpdate = () => {
-    const updatedLevel = parseInt(newLevel, 10);
-    if (!isNaN(updatedLevel) && updatedLevel > 0) {
-      const updatedCharacter = { 
-        ...character, 
-        charLevel: updatedLevel,
-        charJob: newJob,
-        charClass: newClass
-      };
-      onUpdate(updatedCharacter);
-      onUpdateSuccess();
-      onClose();
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    if (name === 'charJob') {
+      setEditedCharacter(prev => ({
+        ...prev,
+        [name]: value as CharJob,
+      }));
     } else {
-      alert('Please enter a valid level (positive integer)');
+      setEditedCharacter(prev => ({ ...prev, [name]: value }));
     }
   };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onUpdate(editedCharacter);
+    onUpdateSuccess();  // 업데이트 성공 시 호출
+    onClose();
+  };
+
+  const canEdit = character.userKey === userKey;
 
   return (
     <div>
       <h2>Character Details</h2>
-      <p>Name: {character.charName}</p>
-      <div>
-        <label htmlFor="jobSelect">Job: </label>
-        <select id="jobSelect" value={newJob} onChange={handleJobChange}>
-          {Object.values(CharJob).map((job) => (
-            <option key={job} value={job}>{job}</option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <label htmlFor="classSelect">Class: </label>
-        <select id="classSelect" value={newClass} onChange={handleClassChange}>
-          {Object.values(CharClass).map((charClass) => (
-            <option key={charClass} value={charClass}>{charClass}</option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <label htmlFor="levelInput">Level: </label>
-        <input
-          id="levelInput"
-          type="number"
-          value={newLevel}
-          onChange={handleLevelChange}
-          min="1"
-        />
-      </div>
-      <button onClick={handleUpdate}>Update Character</button>
-      <button onClick={onClose}>Close</button>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label htmlFor="charName">Name: </label>
+          <input
+            id="charName"
+            type="text"
+            name="charName"
+            value={editedCharacter.charName}
+            onChange={handleChange}
+            disabled={!canEdit}
+          />
+        </div>
+        <div>
+          <label htmlFor="charJob">Job: </label>
+          <select
+            id="charJob"
+            name="charJob"
+            value={editedCharacter.charJob}
+            onChange={handleChange}
+            disabled={!canEdit}
+          >
+            {Object.values(CharJob).map((job) => (
+              <option key={job} value={job}>{job}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label>Class: </label>
+          <span>{getCharClassFromJob(editedCharacter.charJob)}</span>
+        </div>
+        <div>
+          <label htmlFor="charLevel">Level: </label>
+          <input
+            id="charLevel"
+            type="number"
+            name="charLevel"
+            value={editedCharacter.charLevel}
+            onChange={handleChange}
+            disabled={!canEdit}
+          />
+        </div>
+        {canEdit && <button type="submit">Update Character</button>}
+        <button type="button" onClick={onClose}>Close</button>
+      </form>
     </div>
   );
 };

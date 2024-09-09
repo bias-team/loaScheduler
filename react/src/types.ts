@@ -38,8 +38,9 @@ export interface Character {
   charId: number;
   charName: string;
   charJob: CharJob;
-  charClass: CharClass;
+  // charClass: CharClass;
   charLevel: number;
+  userKey: string; // 캐릭터 소유자의 키 추가
 }
 
 export interface Raid {
@@ -47,4 +48,12 @@ export interface Raid {
   name: string;
   partyCount: number;
   parties: number[][];
+  raidCreatorKey: string; //레이드 생성자 키
+}
+
+export function getCharClassFromJob(job: CharJob): CharClass {
+  if (job === CharJob.ARTIST || job === CharJob.BARD || job === CharJob.HOLYKNIGHT) {
+    return CharClass.SUPPORTER;
+  }
+  return CharClass.DEALER;
 }

@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
-import { Character, CharJob, CharClass } from '../types';
+import { Character, CharJob } from '../types';
+import { useUserStore } from '../stores/userStore';
 
 interface CharacterCreateProps {
   onAddCharacter: (character: Character) => void;
 }
 
 const CharacterCreate: React.FC<CharacterCreateProps> = ({ onAddCharacter }) => {
+  const { userKey } = useUserStore();
   const [character, setCharacter] = useState<Omit<Character, 'charId'>>({
     charName: '',
     charJob: CharJob.DESTROYER,
-    charClass: CharClass.DEALER,
     charLevel: 1600,
+    userKey: userKey,
   });
 
   const handleChange = (
@@ -26,12 +28,13 @@ const CharacterCreate: React.FC<CharacterCreateProps> = ({ onAddCharacter }) => 
       ...character,
       charId: Date.now(),
       charLevel: Number(character.charLevel),
+      userKey,
     });
     setCharacter({ 
       charName: '', 
-      charJob: CharJob.DESTROYER, 
-      charClass: CharClass.DEALER, 
-      charLevel: 1600 
+      charJob: CharJob.DESTROYER,
+      charLevel: 1600,
+      userKey: userKey,
     });
   };
 
@@ -53,16 +56,6 @@ const CharacterCreate: React.FC<CharacterCreateProps> = ({ onAddCharacter }) => 
       >
         {Object.values(CharJob).map((job) => (
           <option key={job} value={job}>{job}</option>
-        ))}
-      </select>
-      <select
-        name="charClass"
-        value={character.charClass}
-        onChange={handleChange}
-        required
-      >
-        {Object.values(CharClass).map((charClass) => (
-          <option key={charClass} value={charClass}>{charClass}</option>
         ))}
       </select>
       <input

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import CharacterCreate from "./CharacterCreate";
 import CharacterDetail from "./CharacterDetail";
 import { Character } from "../types";
+// 플로팅으로 바꿔야함
 
 interface CharacterListProps {
   onCharacterChange: (characters: Character[]) => void;
@@ -34,7 +35,7 @@ const CharacterList: React.FC<CharacterListProps> = ({ onCharacterChange }) => {
   };
   const handleUpdateSuccess = () => {
     setUpdateMessage("Character updated successfully!");
-    setTimeout(() => setUpdateMessage(null), 3000); // Clear message after 3 seconds
+    setTimeout(() => setUpdateMessage(null), 2000); // 2초 후 메시지 제거
   };
   const handleDeleteCharacter = (charId: number) => {
     setCharacters(characters.filter(char => char.charId !== charId));
@@ -72,7 +73,7 @@ const CharacterList: React.FC<CharacterListProps> = ({ onCharacterChange }) => {
         ))}
       </ul>
       {updateMessage && <div className="update-message">{updateMessage}</div>}
-      {selectedCharacter && (
+      {selectedCharacter !== null && (
         <CharacterDetail
           character={
             characters.find(char => char.charId === selectedCharacter)!
