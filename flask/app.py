@@ -1,11 +1,15 @@
 from flask import Flask,jsonify, render_template, session, redirect, url_for, request
 import yaml
 from flask_login import login_required, login_user, logout_user, current_user
+from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import db, init_db, User, Character, Raid, Party, CharClass, RaidType
 from datetime import datetime
 
 app = Flask(__name__)
+
+# 모든 도메인에서의 CORS 요청 허용
+CORS(app, supports_credentials=True)
 
 # Secret.yaml 읽기
 with open("Secret.yaml", "r", encoding="UTF-8") as f:

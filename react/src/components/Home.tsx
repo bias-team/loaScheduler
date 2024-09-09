@@ -4,20 +4,26 @@ import { useTheme } from '../contexts/ThemeContext';
 import Login from './Login';
 import CharacterList from './CharacterList';
 import RaidList from './RaidList';
+import { logout } from '../api';
 
 const Home: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentMember, setCurrentMember] = useState<{ id: number; username: string } | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ id: number; key: string } | null>(null);
   const { toggleTheme } = useTheme();
 
-  const handleLogin = (username: string) => {
+  const handleLogin = (userId: number) => {
     setIsAuthenticated(true);
-    setCurrentMember({ id: 1, username });
+    setCurrentUser({ id: userId, key: 'User' }); // 실제 사용자 키를 가져오는 로직이 필요할 수 있습니다
   };
 
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    setCurrentMember(null);
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setIsAuthenticated(false);
+      setCurrentUser(null);
+    } catch (error) {
+      alert('An error occurred during logout. Please try again.');
+    }
   };
 
   if (!isAuthenticated) {
@@ -28,7 +34,7 @@ const Home: React.FC = () => {
     <>
       <header>
         <h1>Welcome to Raid Party Organizer</h1>
-        <p>Logged in as: {currentMember?.username}</p>
+        <p>Logged in as: {currentUser?.key}</p>
         <button onClick={handleLogout}>Logout</button>
         <button onClick={toggleTheme}>Toggle Theme</button>
       </header>
