@@ -1,8 +1,11 @@
-// src/components/RaidList.tsx
 import React, { useState } from 'react';
-import { Raid } from '../types';
+import { Raid, Character } from '../types';
 
-const RaidList: React.FC = () => {
+interface RaidListProps {
+  characters: Character[];
+}
+
+const RaidList: React.FC<RaidListProps> = ({ characters }) => {
   const [raids, setRaids] = useState<Raid[]>([]);
 
   const handleCreateRaid = () => {
@@ -44,9 +47,14 @@ const RaidList: React.FC = () => {
   };
 
   const getPartyLayout = (partyCount: number): [number, number] => {
-    if (partyCount <= 2) return [1, partyCount];
+    if (partyCount <= 2) return [1, 2];
     if (partyCount <= 4) return [2, 2];
-    return [2, 3];
+    return [partyCount/2, 2];
+  };
+
+  const getCharacterInfo = (charId: number) => {
+    const character = characters.find(char => char.charId === charId);
+    return character ? `(${character.charJob}) ${character.charName} Lv.${character.charLevel}` : `Character ${charId}`;
   };
 
   return (
@@ -77,7 +85,7 @@ const RaidList: React.FC = () => {
                 <div>
                   {party.slice(0, 4).map((charId, index) => (
                     <div key={index} className="party-member">
-                      Character {charId}
+                      {getCharacterInfo(charId)}
                     </div>
                   ))}
                 </div>
@@ -86,7 +94,7 @@ const RaidList: React.FC = () => {
                     <h5>Reserve Members</h5>
                     {party.slice(4).map((charId, index) => (
                       <div key={index} className="reserve-member">
-                        Character {charId}
+                        {getCharacterInfo(charId)}
                       </div>
                     ))}
                   </div>

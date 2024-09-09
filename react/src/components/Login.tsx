@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { login, createUser } from '../api';
 
 interface LoginProps {
-  onLogin: (userId: number) => void;
+  onLogin: (userId: number, userKey: string) => void;
 }
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
@@ -16,7 +16,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     try {
       if (key === 'tester') {
         // tester로 로그인 시 API 요청을 건너뛰고 바로 처리
-        onLogin(0); // 0을 임의의 사용자 ID로 설정
+        onLogin(0, 'tester'); // 0을 임의의 사용자 ID로 설정
         alert('Logged in as tester without API request.');
       } else {
         if (isRegistering) {
@@ -25,7 +25,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           setIsRegistering(false);
         } else {
           const response = await login(key);
-          onLogin(response.id); // 백엔드에서 사용자 ID를 반환한다고 가정
+          onLogin(response.id, key); // 백엔드에서 사용자 ID를 반환한다고 가정
         }
       }
     } catch (error) {
