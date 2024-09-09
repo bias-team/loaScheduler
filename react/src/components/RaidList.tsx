@@ -54,7 +54,20 @@ const RaidList: React.FC<RaidListProps> = ({ characters }) => {
 
   const getCharacterInfo = (charId: number) => {
     const character = characters.find(char => char.charId === charId);
-    return character ? `(${character.charJob}) ${character.charName} Lv.${character.charLevel}` : `Character ${charId}`;
+    return (
+      character ? (
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <span>
+            ({character.charJob}) {character.charName}
+          </span>
+          <span>
+            {character.charLevel}
+          </span>
+        </div>
+      ) : (
+        `Character ${charId}`
+      )
+    );
   };
 
   return (
