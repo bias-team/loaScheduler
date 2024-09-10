@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Raid, Character } from '../types';
+import { Raid, Character, RaidType, getDefaultPartyCount } from '../types';
 import { useUserStore } from '../stores/userStore';
 
 interface RaidListProps {
@@ -7,10 +7,14 @@ interface RaidListProps {
 }
 
 const RaidList: React.FC<RaidListProps> = ({ characters }) => {
-  const { userKey } = useUserStore();
+  const { userId } = useUserStore();
   const [raids, setRaids] = useState<Raid[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
   const [editingRaidId, setEditingRaidId] = useState<number | null>(null);
+  const [editingRaidName, setEditingRaidName] = useState('');
+  const [editingRaidType, setEditingRaidType] = useState<RaidType>(RaidType.BEAST);
+  const [newRaidName, setNewRaidName] = useState('');
+  const [newRaidType, setNewRaidType] = useState<RaidType>(RaidType.BEAST);
 
   useEffect(() => {
     // 여기서 백엔드에서 레이드 목록을 가져오는 API를 호출할 수 있습니다.
@@ -18,29 +22,22 @@ const RaidList: React.FC<RaidListProps> = ({ characters }) => {
   }, []);
 
   const handleCreateRaid = () => {
+    const partyCount = getDefaultPartyCount(newRaidType);
     const newRaid: Raid = {
       id: Date.now(),
-      name: `Raid ${raids.length + 1}`,
-      partyCount: 1,
-      parties: [[]],
-      raidCreatorKey: userKey,
+      name: newRaidName || `${newRaidType} Raid`,
+      type: newRaidType,
+      partyCount: partyCount,
+      parties: Array(partyCount).fill([]),
+      raidCreatorId: userId,
     };
     setRaids([...raids, newRaid]);
     setHasChanges(true);
+    setNewRaidName('');
+    setNewRaidType(RaidType.BEAST);
   };
 
-  const isRaidCreator = (raid: Raid) => raid.raidCreatorKey === userKey;
-
-  const handlePartyCountChange = (raidId: number, count: number) => {
-    setRaids(raids.map(raid => {
-      if (raid.id === raidId) {
-        const newParties = Array(count).fill(null).map((_, i) => raid.parties[i] || []);
-        return { ...raid, partyCount: count, parties: newParties };
-      }
-      return raid;
-    }));
-    setHasChanges(true);
-  };
+  const isRaidCreator = (raid: Raid) => raid.raidCreatorId === userId;
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>, raidId: number, partyIndex: number) => {
     e.preventDefault();
@@ -98,12 +95,39 @@ const RaidList: React.FC<RaidListProps> = ({ characters }) => {
     setHasChanges(true);
   };
 
-  const handleEditRaidName = (raidId: number, newName: string) => {
-    setRaids(raids.map(raid => 
-      raid.id === raidId ? { ...raid, name: newName } : raid
-    ));
-    setEditingRaidId(null);
-    setHasChanges(true);
+  const handleStartEditingRaid = (raid: Raid) => {
+    setEditingRaidId(raid.id);
+    setEditingRaidName(raid.name);
+    setEditingRaidType(raid.type);
+  };
+
+  const handleEditRaidNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditingRaidName(e.target.value);
+  };
+
+  const handleEditRaidTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setEditingRaidType(e.target.value as RaidType);
+  };
+
+  const handleEditRaidSubmit = () => {
+    if (editingRaidId !== null) {
+      setRaids(raids.map(raid => {
+        if (raid.id === editingRaidId) {
+          const newPartyCount = getDefaultPartyCount(editingRaidType);
+          const newParties = Array(newPartyCount).fill([]).map((_, i) => raid.parties[i] || []);
+          return { 
+            ...raid, 
+            name: editingRaidName, 
+            type: editingRaidType,
+            partyCount: newPartyCount,
+            parties: newParties
+          };
+        }
+        return raid;
+      }));
+      setEditingRaidId(null);
+      setHasChanges(true);
+    }
   };
 
   const getCharacterInfo = (charId: number) => {
@@ -111,46 +135,85 @@ const RaidList: React.FC<RaidListProps> = ({ characters }) => {
     return character ? `(${character.charJob}) ${character.charName} Lv.${character.charLevel}` : `Character ${charId}`;
   };
 
-
   return (
-    <div>
+    <div style={{ padding: '20px' }}>
       <h2>Raids</h2>
-      <button onClick={handleCreateRaid}>Create Raid</button>
-      {hasChanges && <button onClick={handleSave}>Save Changes</button>}
+      <div style={{ marginBottom: '20px' }}>
+        <input
+          type="text"
+          value={newRaidName}
+          onChange={(e) => setNewRaidName(e.target.value)}
+          placeholder="New Raid Name"
+          style={{ marginRight: '10px', padding: '5px' }}
+        />
+        <select
+          value={newRaidType}
+          onChange={(e) => setNewRaidType(e.target.value as RaidType)}
+          style={{ marginRight: '10px', padding: '5px' }}
+        >
+          {Object.values(RaidType).map((type) => (
+            <option key={type} value={type}>
+              {type}
+            </option>
+          ))}
+        </select>
+        <button onClick={handleCreateRaid} style={{ padding: '5px 10px' }}>Create Raid</button>
+      </div>
+      {hasChanges && <button onClick={handleSave} style={{ marginBottom: '20px', padding: '5px 10px' }}>Save Changes</button>}
       {raids.map(raid => (
-        <div key={raid.id} className="raid">
+        <div key={raid.id} style={{
+          background: 'rgba(200, 200, 200, 0.1)',
+          borderRadius: '10px',
+          padding: '15px',
+          marginBottom: '20px',
+          boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)'
+        }}>
           {editingRaidId === raid.id ? (
-            <input 
-              value={raid.name}
-              onChange={(e) => handleEditRaidName(raid.id, e.target.value)}
-              onBlur={() => setEditingRaidId(null)}
-            />
-          ) : (
-            <h3 onClick={() => isRaidCreator(raid) && setEditingRaidId(raid.id)}>{raid.name}</h3>
-          )}
-          {isRaidCreator(raid) && (
-            <>
-              <button onClick={() => handleDeleteRaid(raid.id)}>Delete Raid</button>
+            <form onSubmit={(e) => { e.preventDefault(); handleEditRaidSubmit(); }} style={{ marginBottom: '10px' }}>
+              <input 
+                value={editingRaidName}
+                onChange={handleEditRaidNameChange}
+                placeholder="입력 후 엔터를 눌러주세요"
+                style={{ marginRight: '10px', padding: '5px' }}
+              />
               <select
-                value={raid.partyCount}
-                onChange={(e) => handlePartyCountChange(raid.id, Number(e.target.value))}
+                value={editingRaidType}
+                onChange={handleEditRaidTypeChange}
+                style={{ marginRight: '10px', padding: '5px' }}
               >
-                {[1, 2, 3, 4, 5, 6].map(count => (
-                  <option key={count} value={count}>{count} {count === 1 ? 'Party' : 'Parties'}</option>
+                {Object.values(RaidType).map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
                 ))}
               </select>
-            </>
+              <button type="submit" style={{ marginRight: '10px', padding: '5px 10px' }}>Save</button>
+              <button type="button" onClick={() => setEditingRaidId(null)} style={{ padding: '5px 10px' }}>Cancel</button>
+            </form>
+          ) : (
+            <h3 onClick={() => isRaidCreator(raid) && handleStartEditingRaid(raid)} style={{ marginBottom: '10px', cursor: 'pointer' }}>
+              {raid.name} ({raid.type})
+            </h3>
           )}
-          <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+          {isRaidCreator(raid) && (
+            <button onClick={() => handleDeleteRaid(raid.id)} style={{ marginBottom: '10px', padding: '5px 10px' }}>Delete Raid</button>
+          )}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
             {raid.parties.map((party, partyIndex) => (
               <div
                 key={partyIndex}
                 className="party"
                 onDrop={(e) => handleDrop(e, raid.id, partyIndex)}
                 onDragOver={handleDragOver}
-                style={{ border: '1px solid #ccc', padding: '10px', margin: '5px' }}
+                style={{ 
+                  border: '1px solid #ccc', 
+                  borderRadius: '5px',
+                  padding: '10px', 
+                  background: 'rgba(16, 16, 16, 0.1)',
+                  minWidth: '200px'
+                }}
               >
-                <h4>Party {partyIndex + 1}</h4>
+                <h4 style={{ marginTop: '0', marginBottom: '10px' }}>Party {partyIndex + 1}</h4>
                 {party.map((charId) => {
                   const character = characters.find(char => char.charId === charId);
                   return (
@@ -158,11 +221,17 @@ const RaidList: React.FC<RaidListProps> = ({ characters }) => {
                       key={charId} 
                       draggable
                       onDragStart={(e) => handleDragStart(e, charId)}
-                      style={{ margin: '5px', padding: '5px', border: '1px solid #ddd' }}
+                      style={{ 
+                        margin: '5px 0', 
+                        padding: '5px', 
+                        border: '1px solid #ddd',
+                        borderRadius: '3px',
+                        background: 'rgba(16, 16, 16, 0.4)'
+                      }}
                     >
                       {getCharacterInfo(charId)}
-                      {(isRaidCreator(raid) || character?.userKey === userKey) && (
-                        <button onClick={() => handleRemoveCharacter(raid.id, partyIndex, charId)}>Remove</button>
+                      {(isRaidCreator(raid) || character?.userId === userId) && (
+                        <button onClick={() => handleRemoveCharacter(raid.id, partyIndex, charId)} style={{ marginLeft: '5px', padding: '2px 5px' }}>Remove</button>
                       )}
                     </div>
                   );

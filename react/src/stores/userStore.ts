@@ -3,13 +3,11 @@
 import create from 'zustand';
 
 interface UserState {
-  userKey: string;
-  userId: number;
-  setUser: (key: string, id: number) => void;
+  userId: string;
+  setUser: (id: string) => void;
 }
 
 export const useUserStore = create<UserState>((set) => ({
-  userKey: 'tester',
-  userId: 0,  // 임의의 ID 값
-  setUser: (key, id) => set({ userKey: key, userId: id }),
+  userId: 'tester',  // 기본값으로 'tester' 설정
+  setUser: (id) => set({ userId: id }),
 }));

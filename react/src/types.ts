@@ -5,6 +5,19 @@ export enum CharClass {
   SUPPORTER = "서포터"
 }
 
+export enum RaidType {
+  BEAST = "발탄",
+  DESIRE = "비아키스",
+  FANTASY = "아브렐슈드",
+  DISEASE = "일리아칸",
+  DARKNESS = "카멘",
+  PREV_DESIRE = "에키드나",
+  KAYANGEL = "카양겔",
+  EVORYTOWER = "상아탑",
+  BEHEYMES = "베히모스",
+  AEGIR = "에기르"
+}
+
 export enum CharJob {
   DESTROYER = "디스트로이어",
   WARLOAD = "워로드",
@@ -40,15 +53,16 @@ export interface Character {
   charJob: CharJob;
   // charClass: CharClass;
   charLevel: number;
-  userKey: string; // 캐릭터 소유자의 키 추가
+  userId: string; // 캐릭터 소유자의 ID 추가
 }
 
 export interface Raid {
   id: number;
   name: string;
+  type: RaidType;
   partyCount: number;
   parties: number[][];
-  raidCreatorKey: string; //레이드 생성자 키
+  raidCreatorId: string;
 }
 
 export function getCharClassFromJob(job: CharJob): CharClass {
@@ -56,4 +70,21 @@ export function getCharClassFromJob(job: CharJob): CharClass {
     return CharClass.SUPPORTER;
   }
   return CharClass.DEALER;
+}
+
+export function getDefaultPartyCount(raidType: RaidType): number {
+  switch (raidType) {
+    case RaidType.KAYANGEL:
+      return 1;
+    case RaidType.BEHEYMES:
+      return 4;
+    case RaidType.EVORYTOWER:
+      return 1;
+    default:
+      return 2;
+  }
+}
+
+export function createDefaultParties(partyCount: number): number[][] {
+  return Array(partyCount).fill([]);
 }
