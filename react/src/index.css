@@ -1,12 +1,14 @@
+
 body {
   margin: 0;
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'NanumSquare', system-ui, -apple-system, 'Noto Sans','Roboto', 'Segoe UI',sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
   font-weight: 400;
   min-width: 320px;
   min-height: 100vh;
 }
-
 #root {
   display: flex;
   flex-direction: column;
@@ -40,6 +42,7 @@ a:hover {
   color: #535bf2;
 }
 
+/* 헤더 스타일 */
 h1 {
   font-size: 3.2em;
   line-height: 1.1;

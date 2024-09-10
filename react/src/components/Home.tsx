@@ -1,5 +1,8 @@
 // src/components/Home.tsx
 import React, { useState } from 'react';
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import { TouchBackend } from 'react-dnd-touch-backend'
 import { useTheme } from '../contexts/ThemeContext';
 import Login from './Login';
 import RaidList from './RaidList';
@@ -12,6 +15,9 @@ const Home: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<{ id: number; key: string } | null>(null);
   const [characters, setCharacters] = useState<Character[]>([]);
   const { theme, toggleTheme } = useTheme();
+
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  const backend = isMobile ? TouchBackend : HTML5Backend;
 
   const handleLogin = (userId: number, userKey: string) => {
     setIsAuthenticated(true);
@@ -41,20 +47,20 @@ const Home: React.FC = () => {
 
   return (
     <div className={`app ${theme}`}>
-      <header>
+      <header style={{padding: '0.2em'}}>
         <h1>Welcome to Raid Party Organizer</h1>
         <p>Logged in as: {currentUser?.key}</p>
         <button onClick={handleLogout}>Logout</button>
         <button onClick={toggleTheme}>Toggle Theme</button>
       </header>
-      <main style={{ display: 'flex', padding: '20px' }}>
-        <div style={{ flex: 2, marginRight: '20px' }}>
-          <RaidList characters={characters} />
-        </div>
-        <div style={{ flex: 1 }}>
+      <DndProvider backend={backend}>
+        <main style={{ display: 'flex', padding: '20px', position: 'relative' }}>
+          <div style={{ flex: 1, width: '100%' }}>
+            <RaidList characters={characters} />
+          </div>
           <CharacterList onCharacterChange={handleCharacterChange} />
-        </div>
-      </main>
+        </main>
+      </DndProvider>
     </div>
   );
 };

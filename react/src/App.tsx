@@ -1,6 +1,9 @@
 // App.tsx
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { TouchBackend } from 'react-dnd-touch-backend';
 import Home from './components/Home';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 
@@ -29,10 +32,17 @@ const AppContent: React.FC = () => {
   );
 };
 
+
+
 const App: React.FC = () => {
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  const backend = isMobile ? TouchBackend : HTML5Backend;
+
   return (
     <ThemeProvider>
-      <AppContent />
+      <DndProvider backend={backend}>
+        <AppContent />
+      </DndProvider>
     </ThemeProvider>
   );
 };
