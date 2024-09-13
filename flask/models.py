@@ -2,6 +2,8 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from enum import Enum
+import sqlite3
+
 
 db = SQLAlchemy()
 
@@ -63,7 +65,7 @@ class RaidType(Enum):
     FANTASY = "아브렐슈드"
     DISEASE = "일리아칸"
     DARKNESS = "카멘"
-    PREV_DESIRE = "비아키스"
+    PREV_DESIRE = "에키드나"
     KAYANGEL = "카양겔"
     EVORYTOWER = "상아탑"
     BEHEYMES = "베히모스"
@@ -77,13 +79,14 @@ class Raid(db.Model):
     raidType = db.Column(db.Enum(RaidType))
     raidCreator = db.Column(db.String(50))
     raidTime = db.Column(db.DateTime, default=datetime.utcnow)
-    parties = relationship("Party", back_populates="rai[pd")
+    parties = relationship("Party", back_populates="raid")
 
 class Party(db.Model):
     __tablename__ = 'party'
-    raidId = db.Column(db.Integer, db.ForeignKey('raid.raid_id'), primary_key=True)
-    charId = db.Column(db.Integer, db.ForeignKey('character.char_id'), primary_key=True)
+    raidId = db.Column(db.Integer, db.ForeignKey('raid.raidId'), primary_key=True)
+    charId = db.Column(db.Integer, db.ForeignKey('character.charId'), primary_key=True)
     raid = relationship("Raid", back_populates="parties")
+    partyNum = db.Column(db.Integer) # 파티 내 순서
     character = relationship("Character", back_populates="parties")
 
 def init_db(app):

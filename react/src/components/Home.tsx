@@ -1,23 +1,44 @@
 // src/components/Home.tsx
 import React, { useState } from 'react';
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import { TouchBackend } from 'react-dnd-touch-backend'
 import { useTheme } from '../contexts/ThemeContext';
 import Login from './Login';
-import CharacterList from './CharacterList';
 import RaidList from './RaidList';
+import CharacterList from './CharacterList';
+import { logout } from '../api';
+import { Character } from '../types';
 
 const Home: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentMember, setCurrentMember] = useState<{ id: number; username: string } | null>(null);
-  const { toggleTheme } = useTheme();
+  const [currentUser, setCurrentUser] = useState<{ id: number; key: string } | null>(null);
+  const [characters, setCharacters] = useState<Character[]>([]);
+  const { theme, toggleTheme } = useTheme();
 
-  const handleLogin = (username: string) => {
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  const backend = isMobile ? TouchBackend : HTML5Backend;
+
+  const handleLogin = (userId: number, userKey: string) => {
     setIsAuthenticated(true);
-    setCurrentMember({ id: 1, username });
+    setCurrentUser({ id: userId, key: userKey });
   };
 
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    setCurrentMember(null);
+  const handleLogout = async () => {
+    try {
+      if (currentUser?.key !== 'tester') {
+        await logout();
+      }
+      setIsAuthenticated(false);
+      setCurrentUser(null);
+      setCharacters([]);
+    } catch (error) {
+      alert('An error occurred during logout. Please try again.');
+    }
+  };
+
+  const handleCharacterChange = (updatedCharacters: Character[]) => {
+    setCharacters(updatedCharacters);
   };
 
   if (!isAuthenticated) {
@@ -25,22 +46,22 @@ const Home: React.FC = () => {
   }
 
   return (
-    <>
-      <header>
+    <div className={`app ${theme}`}>
+      <header style={{padding: '0.2em'}}>
         <h1>Welcome to Raid Party Organizer</h1>
-        <p>Logged in as: {currentMember?.username}</p>
+        <p>Logged in as: {currentUser?.key}</p>
         <button onClick={handleLogout}>Logout</button>
         <button onClick={toggleTheme}>Toggle Theme</button>
       </header>
-      <main style={{ display: 'flex', justifyContent: 'space-between', padding: '20px' }}>
-        <section className="raid-section" style={{ flex: 1, marginRight: '20px' }}>
-          <RaidList />
-        </section>
-        <section className="character-section" style={{ flex: 1 }}>
-          <CharacterList />
-        </section>
-      </main>
-    </>
+      <DndProvider backend={backend}>
+        <main style={{ display: 'flex', padding: '20px', position: 'relative' }}>
+          <div style={{ flex: 1, width: '100%' }}>
+            <RaidList characters={characters} />
+          </div>
+          <CharacterList onCharacterChange={handleCharacterChange} />
+        </main>
+      </DndProvider>
+    </div>
   );
 };
 
