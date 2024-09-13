@@ -1,59 +1,59 @@
-from flask import Flask,jsonify, render_template, session, redirect, url_for, request
-import yaml
-from flask_login import login_required, login_user, logout_user, current_user
+from flask import Flask, jsonify, render_template, session, redirect, url_for, request
+from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import db, init_db, User, Character, Raid, Party, CharClass, RaidType
 from datetime import datetime
 
 app = Flask(__name__)
 
-# Secret.yaml 읽기
-with open("Secret.yaml", "r", encoding="UTF-8") as f:
-    secret = yaml.safe_load(f)
+# 데이터베이스 설정
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///game_raid.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.secret_key = 'your_secret_key_here'  # 세션을 위한 시크릿 키 설정
+
+# 데이터베이스 초기화
+init_db(app)
+
+# LoginManager 설정
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
 @app.route('/')
 def home():
-    if "userId" in session:
-        return render_template('index.html', userId =session["userId"])
+    if current_user.is_authenticated:
+        return render_template('index.html', user=current_user)
     return redirect(url_for("login"))
 
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    data = request.json
-    user = User.query.filter_by(key=data['key']).first()
-    if user and user.check_password(data['password']):
-        login_user(user)
-        return jsonify({"message": "Logged in successfully"}), 200
-    return jsonify({"message": "Invalid username or password"}), 401
+    if request.method == 'POST':
+        key = request.form['key']
+        user = User.query.filter_by(key=key).first()
+        if user:
+            login_user(user)
+            return redirect(url_for('home'))
+        return jsonify({"message": "Invalid key"}), 401
+    return render_template('login.html')
 
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
-    return jsonify({"message": "Logged out successfully"}), 200
+    return redirect(url_for('home'))
 
 @app.route('/user', methods=['POST'])
 def create_user():
     data = request.json
     new_user = User(key=data['key'])
-    new_user.set_password(data['password'])
     db.session.add(new_user)
     db.session.commit()
     return jsonify({"message": "User created", "id": new_user.id}), 201
 
-@app.route('/user/<int:user_id>', methods=['PUT'])
-@login_required
-def update_user(user_id):
-    if current_user.id != user_id:
-        return jsonify({"message": "Unauthorized"}), 403
-    user = User.query.get_or_404(user_id)
-    data = request.json
-    user.key = data.get('key', user.key)
-    if 'password' in data:
-        user.set_password(data['password'])
-    db.session.commit()
-    return jsonify({"message": "User updated"}), 200
-
-# Character operations (CRU)
 @app.route('/character', methods=['POST'])
 @login_required
 def create_character():
@@ -69,36 +69,6 @@ def create_character():
     db.session.commit()
     return jsonify({"message": "Character created", "id": new_character.charId}), 201
 
-@app.route('/character/<int:char_id>', methods=['GET'])
-@login_required
-def get_character(char_id):
-    character = Character.query.get_or_404(char_id)
-    if character.id != current_user.id:
-        return jsonify({"message": "Unauthorized"}), 403
-    return jsonify({
-        "charId": character.charId,
-        "userId": character.id,
-        "charJob": character.charJob,
-        "charName": character.charName,
-        "charClass": character.charClass.value,
-        "charLevel": character.charLevel
-    }), 200
-
-@app.route('/character/<int:char_id>', methods=['PUT'])
-@login_required
-def update_character(char_id):
-    character = Character.query.get_or_404(char_id)
-    if character.id != current_user.id:
-        return jsonify({"message": "Unauthorized"}), 403
-    data = request.json
-    character.charJob = data.get('charJob', character.charJob)
-    character.charName = data.get('charName', character.charName)
-    character.charClass = CharClass(data.get('charClass', character.charClass.value))
-    character.charLevel = data.get('charLevel', character.charLevel)
-    db.session.commit()
-    return jsonify({"message": "Character updated"}), 200
-
-# Raid operations (CRUD)
 @app.route('/raid', methods=['POST'])
 @login_required
 def create_raid():
@@ -113,42 +83,18 @@ def create_raid():
     db.session.commit()
     return jsonify({"message": "Raid created", "id": new_raid.raidId}), 201
 
-@app.route('/raid/<int:raid_id>', methods=['GET'])
+@app.route('/party', methods=['POST'])
 @login_required
-def get_raid(raid_id):
-    raid = Raid.query.get_or_404(raid_id)
-    return jsonify({
-        "raidId": raid.raidId,
-        "raidName": raid.raidName,
-        "raidType": raid.raidType.value,
-        "raidCreator": raid.raidCreator,
-        "raidTime": raid.raidTime.isoformat()
-    }), 200
-
-@app.route('/raid/<int:raid_id>', methods=['PUT'])
-@login_required
-def update_raid(raid_id):
-    raid = Raid.query.get_or_404(raid_id)
-    if raid.raidCreator != current_user.key:
-        return jsonify({"message": "Unauthorized"}), 403
+def create_party():
     data = request.json
-    raid.raidName = data.get('raidName', raid.raidName)
-    raid.raidType = RaidType(data.get('raidType', raid.raidType.value))
-    raid.raidTime = datetime.fromisoformat(data.get('raidTime', raid.raidTime.isoformat()))
+    new_party = Party(
+        raidId=data['raidId'],
+        charId=data['charId'],
+        partyNum=data['partyNum']
+    )
+    db.session.add(new_party)
     db.session.commit()
-    return jsonify({"message": "Raid updated"}), 200
-
-@app.route('/raid/<int:raid_id>', methods=['DELETE'])
-@login_required
-def delete_raid(raid_id):
-    raid = Raid.query.get_or_404(raid_id)
-    if raid.raidCreator != current_user.key:
-        return jsonify({"message": "Unauthorized"}), 403
-    db.session.delete(raid)
-    db.session.commit()
-    return jsonify({"message": "Raid deleted"}), 200
+    return jsonify({"message": "Party created"}), 201
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
