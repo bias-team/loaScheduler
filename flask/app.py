@@ -29,7 +29,7 @@ init_db(app)
 # LoginManager 설정
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'login'
+login_manager.login_view = '/login'
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -48,19 +48,23 @@ def home():
         return render_template('index.html', user=current_user)
 
 # 로그인
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['GET','POST'])
 def login():
-    data = request.json
-    if 'key' not in data or 'password' not in data:
-        return jsonify({"message": "Missing key or password"}), 400
+    if request.method == 'GET':
+        # 로그인 폼을 렌더링하거나 JSON 응답을 반환
+        return jsonify({"message": "Please provide login credentials"}), 200
 
-    user = User.query.filter_by(key=data['key']).first()
-    if user and user.check_password(data['password']):
-        login_user(user)
-        return jsonify({"message": "Login successful", "user_id": user.id}), 200
-    else:
-        return jsonify({"message": "Invalid credentials"}), 401
+    if request.method == 'POST':
+        data = request.json
+        if 'key' not in data or 'password' not in data:
+            return jsonify({"message": "Missing key or password"}), 400
 
+        user = User.query.filter_by(key=data['key']).first()
+        if user and user.check_password(data['password']):
+            login_user(user)
+            return jsonify({"message": "Login successful", "user_id": user.id}), 200
+        else:
+            return jsonify({"message": "Invalid credentials"}), 401
 # 로그아웃
 @app.route('/logout')
 @login_required
@@ -135,7 +139,34 @@ def create_character():
     except Exception as e:
         app.logger.error(f"Error creating character: {str(e)}")
         return jsonify({"message": "Error while creating character"}), 500
-# 캐릭터 조회
+
+#유저의 모든 캐릭터 조회
+@app.route('/character/<int:user_id>', methods=['GET'])
+@login_required
+def get_user_characters(user_id):
+    app.logger.info(f"Fetching all characters for user {user_id}")
+
+    characters = Character.query.filter_by(user_id=user_id).all()
+
+    # 캐릭터가 없는 경우 빈 리스트 반환
+    if not characters:
+        return jsonify({"message": "No characters found for this user", "characters": []}), 200
+
+    return jsonify({
+        "userId": user_id,
+        "characters": [
+            {
+                "charId": character.charId,
+                "charName": character.charName,
+                "charJob": character.charJob.value,
+                "charClass": character.charClass.value,
+                "charLevel": character.charLevel,
+            }
+            for character in characters
+        ]
+    }), 200
+
+# 특정 캐릭터 조회
 @app.route('/character/<int:char_id>', methods=['GET'])
 @login_required
 def get_character(char_id):
@@ -298,30 +329,21 @@ def delete_raid(raid_id):
 @login_required
 def create_party():
     data = request.json
-
-    # 필수 필드 체크
     if not all(key in data for key in ('raidId', 'charId')):
         return jsonify({"message": "Missing required fields: 'raidId', 'charId'"}), 400
 
     try:
-
-        # 새로운 파티 생성
         new_party = Party(
             raidId=data['raidId'],
             charId=data['charId'],
         )
-
-        # 데이터베이스에 추가
         db.session.add(new_party)
         db.session.commit()
 
         return jsonify({"message": "Party created", "partyId": new_party.partyId}), 201
 
-
     except IntegrityError as e:
-
         app.logger.error(f"IntegrityError: {str(e)}. Data: {data}")
-
         return jsonify({"message": "Party with this raidId and charId already exists"}), 409
 
 # 특정 파티 조회
@@ -385,4 +407,4 @@ def delete_party(party_id):
         return jsonify({"message": "Error while deleting party"}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

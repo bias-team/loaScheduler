@@ -3,7 +3,7 @@ import axios, { AxiosInstance } from 'axios';
 
 // 기본 Axios 인스턴스 설정
 const api: AxiosInstance = axios.create({
-  baseURL: 'http://localhost:5000', // Flask 서버 URL로 변경
+  baseURL: 'http://localhost:3000', // Flask 서버 URL로 변경
   headers: {
     'Content-Type': 'application/json',
   },
