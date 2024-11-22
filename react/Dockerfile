@@ -14,7 +14,9 @@ RUN npm run build
 # Step 2: Serve the app with Nginx
 FROM nginx:alpine
 
+# Copy build assets from the build stage to the Nginx html directory
 COPY --from=build /bias-app/build /usr/share/nginx/html
 
+# Expose the default Nginx port
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

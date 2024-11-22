@@ -1,22 +1,22 @@
+version: '3.8'
+
 services:
   react-app:
     build:
       context: ./react
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
-    volumes:
-      - ./react:/bias-app
-      - /bias-app/node_modules
+      - "5173:80"  # Nginx가 빌드된 정적 파일을 서빙하므로 포트를 수정 (Nginx 컨테이너 포트 80)
     environment:
-      - NODE_ENV=development
-    command: npm start
+      - NODE_ENV=production
 
-  # flask-app:
-  #   build:
-  #     context: ./flask
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "5000:5000"
-  #   volumes:
-  #     - ./flask:/app
+  flask-app:
+    build:
+      context: ./flask
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./flask:/app
+    command: >
+      sh -c "pip install -r requirements.txt && flask run --host=0.0.0.0"
